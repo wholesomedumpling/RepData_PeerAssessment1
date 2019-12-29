@@ -1,0 +1,49 @@
+#Code for reading in the dataset and/or processing the data
+```{r message=FALSE}
+rawdata <- read.csv("activity.csv", header = TRUE, na.strings = "NA")
+#convert date column from factor into date
+rawdata$date <- as.Date(rawdata$date, "%Y-%m-%d")
+```
+#Histogram of the total number of steps taken each day
+```{r message=FALSE}
+library(ggplot2)
+qplot(steps, data=rawdata, xlab = "Number of Steps", ylab = "Frequency",main="Frequency of Steps")
+```
+#Mean and median number of steps taken each day
+```{r message=FALSE}
+library(dplyr)
+#summarise
+summariseddata <- rawdata %>%
+        group_by(date) %>%
+        summarise(median = median(steps),average = mean(steps))
+
+print(summariseddata)
+
+```
+#Time series plot of the average number of steps taken
+```{r message=FALSE}
+#plot the time series
+gplot <- ggplot(data = summariseddata, aes(date, average))
+gplot+geom_line() + geom_smooth() + labs(x= "Date", y="Average Number of Steps")
+```
+
+#The 5-minute interval that, on average, contains the maximum number of steps
+```{r message=FALSE}
+#group by interval
+sumdata <- rawdata[,c(3,1)] %>%
+        group_by(interval)
+#remove NAs
+isna <- is.na(sumdata$steps)
+sumdata <- sumdata[!isna,]
+
+#find average
+sumdata <- sumdata <- summarise(sumdata, avg = mean(steps))
+
+#find maximum average and return the interval
+sumdata[which.max(sumdata$avg),]
+```
+#Code to describe and show a strategy for imputing missing data
+
+#Histogram of the total number of steps taken each day after missing values are imputed
+#Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+#All of the R code needed to reproduce the results (numbers, plots, etc.) in the report
