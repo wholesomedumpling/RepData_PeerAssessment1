@@ -22,8 +22,23 @@ rawdata$date <- as.Date(rawdata$date, "%Y-%m-%d")
 Calculate and report the mean and median of the total number of steps taken per day. 
 
 
+```r
+library(dplyr)
+#summarise
+summariseddata <- rawdata %>%
+        group_by(date) %>%
+        summarise(median = median(steps),average = mean(steps), total = sum(steps))
+library(kableExtra)
+```
+
 ```
 ## Warning: package 'kableExtra' was built under R version 3.6.2
+```
+
+```r
+summariseddata %>%
+        kable() %>%
+          kable_styling()
 ```
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -406,6 +421,13 @@ Calculate and report the mean and median of the total number of steps taken per 
 </table>
 Make a histogram of the total number of steps taken each day. 
 
+```r
+#plot the time series
+library(ggplot2)
+gplot <- ggplot(data = summariseddata, aes(total))
+gplot+geom_histogram(fill="skyblue", bins = 12) + labs(x= "Total Steps", y="Count")
+```
+
 ```
 ## Warning: Removed 8 rows containing non-finite values (stat_bin).
 ```
@@ -415,6 +437,18 @@ Make a histogram of the total number of steps taken each day.
 ## What is the average daily activity pattern?
 
 
+```r
+#group by interval
+library(dplyr)
+sumdata <- rawdata[,c(3,1)] %>%
+        group_by(interval)
+#remove NAs
+isna <- is.na(sumdata$steps)
+sumdata <- sumdata[!isna,]
+
+#find average
+sumdata <-  summarise(sumdata, avg = mean(steps))
+```
 
 
 
@@ -428,10 +462,35 @@ Plot the average over time.
 ## Imputing missing values
 The impute method is going to be the average for the interval.
 
+```r
+#count number of missing values
+#set up a logical data frame
+navals <- is.na(rawdata)
+nonavals <- sum(navals[,1] == TRUE)
+#count missing vals in first col (no NAs in other columns)
+```
 
 The total number of NAs are 2304. 
 
 Plot the total steps per day.
+
+
+```r
+#Impute missing values with the mean of each interval
+impdata <- rawdata %>% 
+        group_by(interval) %>% 
+        mutate(steps = ifelse(is.na(steps), mean(steps, na.rm=TRUE),steps))
+
+#create table for total steps taken each day
+totalsteps <- impdata %>% 
+        ungroup() %>%
+        group_by(date) %>%
+        summarise(total_steps = mean(steps))
+
+#plot out the histogram
+impplot <- ggplot(data=totalsteps, aes(total_steps))
+impplot + geom_histogram(fill="hotpink2", bins = 12)+labs(x="Total Steps", y="Count", title="Count of Daily Total Steps")
+```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
@@ -444,5 +503,26 @@ There are two notable trends in the graphs below:
 * the person wakes up later on the weekend and they are more active overall during the day. 
 
 * the person has the highest activity in the morning during the weekday, as we can assume they are getting ready for work. We can consider that they have an office job as their activity peaks during lunch, work finish and dinner time.
+
+
+```r
+library(lattice)
+compdata <- impdata %>%
+        ungroup() %>% #ungroup the imputed dataset
+        #create a column that has weekday and weekend
+        mutate(day = case_when(weekdays(date) %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday") ~ "weekday", weekdays(date) %in% c("Saturday", "Sunday")~"weekend"))
+
+#convert to factor
+compdata$day <- as.factor(compdata$day) 
+#calculate average, median and total steps
+compdata <- compdata %>% 
+        group_by(day, interval) %>%
+        summarise(median = median(steps),average = mean(steps), total = sum(steps))
+
+
+
+#plot the facets - reviewed total and median - not meaningful pictures
+xyplot(average ~ interval | day, data = compdata, type = "l", layout = c(1, 2), xlab = "Interval", ylab = "Average Steps", main = "Average Steps by Interval")
+```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->

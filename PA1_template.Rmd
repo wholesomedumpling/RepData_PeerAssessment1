@@ -22,7 +22,7 @@ rawdata$date <- as.Date(rawdata$date, "%Y-%m-%d")
 
 Calculate and report the mean and median of the total number of steps taken per day. 
 
-```{r message=FALSE, echo=FALSE}
+```{r message=FALSE}
 library(dplyr)
 #summarise
 summariseddata <- rawdata %>%
@@ -35,7 +35,7 @@ summariseddata %>%
           kable_styling()
 ```
 Make a histogram of the total number of steps taken each day. 
-```{r message=FALSE, echo=FALSE}
+```{r message=FALSE}
 #plot the time series
 library(ggplot2)
 gplot <- ggplot(data = summariseddata, aes(total))
@@ -45,7 +45,7 @@ gplot+geom_histogram(fill="skyblue", bins = 12) + labs(x= "Total Steps", y="Coun
 
 ## What is the average daily activity pattern?
 
-```{r message=FALSE, echo=FALSE}
+```{r message=FALSE}
 #group by interval
 library(dplyr)
 sumdata <- rawdata[,c(3,1)] %>%
@@ -75,7 +75,7 @@ plot(sumdata$interval, sumdata$avg, type="l", xlab= "Time Interval", ylab = "Ave
 
 ## Imputing missing values
 The impute method is going to be the average for the interval.
-```{r echo=FALSE}
+```{r}
 
 #count number of missing values
 #set up a logical data frame
@@ -89,7 +89,7 @@ The total number of NAs are `r nonavals`.
 
 Plot the total steps per day.
 
-```{r echo=FALSE}
+```{r}
 #Impute missing values with the mean of each interval
 impdata <- rawdata %>% 
         group_by(interval) %>% 
@@ -117,7 +117,7 @@ There are two notable trends in the graphs below:
 
 * the person has the highest activity in the morning during the weekday, as we can assume they are getting ready for work. We can consider that they have an office job as their activity peaks during lunch, work finish and dinner time.
 
-```{r echo = FALSE}
+```{r}
 library(lattice)
 compdata <- impdata %>%
         ungroup() %>% #ungroup the imputed dataset
