@@ -18,7 +18,6 @@ rawdata$date <- as.Date(rawdata$date, "%Y-%m-%d")
 ```
 
 ## What is mean total number of steps taken per day?
-Calculate the total number of steps taken per day. 
 
 Calculate and report the mean and median of the total number of steps taken per day. 
 
@@ -417,45 +416,33 @@ Make a histogram of the total number of steps taken each day.
 
 
 
+
+
 The interval with the highest average is 104. It comes from interval 835. 
 
 Plot the average over time.
+
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 
 ## Imputing missing values
 The impute method is going to be the average for the interval.
 
+
 The total number of NAs are 2304. 
 
-Plot the total steps per day. 
+Plot the total steps per day.
+
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 I'm going to use the lattice package to plot this.
 
-As you can see below, the main difference is that the weekend has a more consistent average profile over each interval, meaning that the 
+There are two notable trends in the graphs below: 
 
+* the person wakes up later on the weekend and they are more active overall during the day. 
 
-```r
-library(lattice)
-compdata <- impdata %>%
-        ungroup() %>% #ungroup the imputed dataset
-        #create a column that has weekday and weekend
-        mutate(day = case_when(weekdays(date) %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday") ~ "weekday", weekdays(date) %in% c("Saturday", "Sunday")~"weekend"))
-
-#convert to factor
-compdata$day <- as.factor(compdata$day) 
-#calculate average, median and total steps
-compdata <- compdata %>% 
-        group_by(day, interval) %>%
-        summarise(median = median(steps),average = mean(steps), total = sum(steps))
-
-
-
-#plot the facets - reviewed total and median - not meaningful pictures
-xyplot(average ~ interval | day, data = compdata, type = "l", layout = c(1, 2), xlab = "Interval", ylab = "Average Steps", main = "Average Steps by Interval")
-```
+* the person has the highest activity in the morning during the weekday, as we can assume they are getting ready for work. We can consider that they have an office job as their activity peaks during lunch, work finish and dinner time.
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->

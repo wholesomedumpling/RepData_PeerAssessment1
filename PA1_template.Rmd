@@ -19,7 +19,6 @@ rawdata$date <- as.Date(rawdata$date, "%Y-%m-%d")
 ```
 
 ## What is mean total number of steps taken per day?
-Calculate the total number of steps taken per day. 
 
 Calculate and report the mean and median of the total number of steps taken per day. 
 
@@ -40,11 +39,12 @@ Make a histogram of the total number of steps taken each day.
 #plot the time series
 library(ggplot2)
 gplot <- ggplot(data = summariseddata, aes(total))
-gplot+geom_histogram(fill="skyblue", bins = 12) + labs(x= "Date", y="Average Number of Steps")
+gplot+geom_histogram(fill="skyblue", bins = 12) + labs(x= "Total Steps", y="Count")
 
 ```
 
 ## What is the average daily activity pattern?
+
 ```{r message=FALSE, echo=FALSE}
 #group by interval
 library(dplyr)
@@ -63,9 +63,11 @@ sumdata <-  summarise(sumdata, avg = mean(steps))
 max <- which.max(sumdata$avg)
 intv <- sumdata[which.max(sumdata$avg),1]
 ```
+
 The interval with the highest average is `r max`. It comes from interval `r intv`. 
 
 Plot the average over time.
+
 ```{r message=FALSE, echo=FALSE}
 plot(sumdata$interval, sumdata$avg, type="l", xlab= "Time Interval", ylab = "Average Steps", main = "Average Number of Steps per Time Interval")
 ```
@@ -82,9 +84,11 @@ nonavals <- sum(navals[,1] == TRUE)
 #count missing vals in first col (no NAs in other columns)
 
 ```
+
 The total number of NAs are `r nonavals`. 
 
-Plot the total steps per day. 
+Plot the total steps per day.
+
 ```{r echo=FALSE}
 #Impute missing values with the mean of each interval
 impdata <- rawdata %>% 
@@ -107,9 +111,13 @@ impplot + geom_histogram(fill="hotpink2", bins = 12)+labs(x="Total Steps", y="Co
 ## Are there differences in activity patterns between weekdays and weekends?
 I'm going to use the lattice package to plot this.
 
-As you can see below, the main difference is that the weekend has a more consistent average profile over each interval, meaning that the 
+There are two notable trends in the graphs below: 
 
-```{r}
+* the person wakes up later on the weekend and they are more active overall during the day. 
+
+* the person has the highest activity in the morning during the weekday, as we can assume they are getting ready for work. We can consider that they have an office job as their activity peaks during lunch, work finish and dinner time.
+
+```{r echo = FALSE}
 library(lattice)
 compdata <- impdata %>%
         ungroup() %>% #ungroup the imputed dataset
